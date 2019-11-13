@@ -1,23 +1,33 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Button, Card, Input, Form } from 'antd';
+import { Button, Card, Input, Popconfirm, message } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
 import moment from 'moment';
 
 import {
-  START_TIMER,
   ADD_SECOND,
-  STOP_TIMER,
+  PAUSE_TIMER,
+  RESUME_TIMER,
   RESET_TIMER,
   SET_TIMER,
   START_TIMER_AND_TODO_CREATE_REQUEST,
 } from '../reducers/timer';
 
+const messageComplete = `Todo를 모두 완료하셨나요?\n
+Done의 내용을 적어주세요.\n
+내용이 없을 경우 'OK'만 기록됩니다.\n
+이대로 저장하시겠어요?`;
+
 const Home = () => {
   const { TextArea } = Input;
   const [todoContent, setTodoContent] = useState('');
-  const { totalTime, elapsedTime, isStarting, isRunning } = useSelector(
-    (state) => state.timer,
-  );
+  const [doneContent, setDoneContent] = useState('');
+  const {
+    totalTime,
+    elapsedTime,
+    isStarting,
+    isStarted,
+    isRunning,
+  } = useSelector((state) => state.timer);
   const [timer, setTimer] = useState('');
   const dispatch = useDispatch();
 
@@ -39,7 +49,7 @@ const Home = () => {
   const onStart = useCallback(() => {
     const verified = verifyContent(todoContent);
     if (!verified) {
-      return alert('Todo에 할 일을 적어주세요.');
+      return message.error('Todo에 할 일을 적어주세요.');
     }
     dispatch({
       type: START_TIMER_AND_TODO_CREATE_REQUEST,
@@ -51,10 +61,36 @@ const Home = () => {
     });
   }, [todoContent]);
 
-  const onStop = useCallback(() => {
+  const onPause = useCallback(() => {
     dispatch({
-      type: STOP_TIMER,
+      type: PAUSE_TIMER,
     });
+  }, []);
+
+  const onResume = useCallback(() => {
+    dispatch({
+      type: RESUME_TIMER,
+    });
+  }, []);
+
+  const onComplete = useCallback(() => {
+    dispatch({
+      type: PAUSE_TIMER,
+    });
+  }, []);
+
+  const onConfirmComplete = useCallback(() => {
+    // todo 저장 로직
+    message.success('저장했습니다.');
+    setTodoContent('');
+    setDoneContent('');
+    dispatch({
+      type: RESET_TIMER,
+    });
+  }, []);
+
+  const onCancelComplete = useCallback(() => {
+    message.success('취소했습니다.');
   }, []);
 
   const onReset = useCallback(() => {
@@ -75,6 +111,10 @@ const Home = () => {
 
   const onChangeTodoContent = useCallback((e) => {
     setTodoContent(e.target.value);
+  }, []);
+
+  const onChangeDoneContent = useCallback((e) => {
+    setDoneContent(e.target.value);
   }, []);
 
   useEffect(() => {
@@ -111,19 +151,27 @@ const Home = () => {
           <TextArea
             value={todoContent}
             onChange={onChangeTodoContent}
-            placeholder="Controlled autosize"
-            autoSize={{ minRows: 3, maxRows: 5 }}
+            placeholder="할 일을 적어주세요."
+            autoSize={{ minRows: 2 }}
           />
         </Card>
         <Card style={{ marginTop: 16, width: '80%' }} type="inner" title="Done">
           <TextArea
-            // value={value}
-            // onChange={this.onChange}
-            placeholder="Controlled autosize"
-            autoSize={{ minRows: 3, maxRows: 5 }}
+            value={doneContent}
+            onChange={onChangeDoneContent}
+            placeholder="한 일을 적어주세요."
+            autoSize={{ minRows: 2 }}
           />
         </Card>
-        {isRunning || (
+        {!isStarted ? (
+          // start button을 클릭하면
+          // isStarting false -> true
+          // isStarted: false
+          // isRunning: false
+          // start request -> success
+          // isStarting true -> false
+          // isStarted: true
+          // isRunning: true
           <Button
             type="primary"
             onClick={onStart}
@@ -132,16 +180,39 @@ const Home = () => {
           >
             Start
           </Button>
-        )}
-        {!isRunning || (
-          <Button
-            type="primary"
-            ghost
-            onClick={onStop}
-            style={{ width: '70%' }}
-          >
-            Stop
-          </Button>
+        ) : (
+          <span>
+            {isRunning ? (
+              <Button
+                type="primary"
+                ghost
+                onClick={onPause}
+                style={{ width: '35%' }}
+              >
+                Pause
+              </Button>
+            ) : (
+              <Button
+                type="primary"
+                ghost
+                onClick={onResume}
+                style={{ width: '35%' }}
+              >
+                Resume
+              </Button>
+            )}
+            <Popconfirm
+              title={messageComplete}
+              onConfirm={onConfirmComplete}
+              onCancel={onCancelComplete}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Button onClick={onComplete} style={{ width: '35%' }}>
+                Complete!
+              </Button>
+            </Popconfirm>
+          </span>
         )}
         <Button
           type="danger"
