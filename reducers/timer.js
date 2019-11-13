@@ -6,8 +6,14 @@ export const START_TIMER_AND_TODO_CREATE_SUCCESS =
 export const START_TIMER_AND_TODO_CREATE_FAILURE =
   'START_TIMER_AND_TODO_CREATE_FAILURE';
 
+export const TODO_COMPLETE_REQUEST = 'TODO_COMPLETE_REQUEST';
+export const TODO_COMPLETE_SUCCESS = 'TODO_COMPLETE_SUCCESS';
+export const TODO_COMPLETE_FAILURE = 'TODO_COMPLETE_FAILURE';
+
 export const STOP_TIMER = 'STOP_TIMER';
 export const PAUSE_TIMER = 'PAUSE_TIMER';
+export const RESUME_TIMER = 'RESUME_TIMER';
+export const TODO_COMPLETE = 'TODO_COMPLETE';
 export const RESET_TIMER = 'RESET_TIMER';
 export const SET_TIMER = 'SET_TIMER';
 export const ADD_SECOND = 'ADD_SECOND';
@@ -44,18 +50,26 @@ const reducer = (state = initialState, action) => {
     case START_TIMER_AND_TODO_CREATE_FAILURE: {
       return applyStartTimerAndTodoCreateFailure(state, action);
     }
-    case STOP_TIMER: {
+    case PAUSE_TIMER: {
       return {
         ...state,
         isRunning: false,
       };
     }
+    case RESUME_TIMER: {
+      return {
+        ...state,
+        isRunning: true,
+      };
+    }
+    case TODO_COMPLETE:
     case RESET_TIMER: {
       return {
         ...state,
-        isRunning: false,
         elapsedTime: 0,
-        totalTime: DEFAULT_TIME,
+        isStarted: false,
+        isStarting: false,
+        isRunning: false,
       };
     }
     case SET_TIMER: {
