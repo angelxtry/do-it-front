@@ -1,7 +1,10 @@
 export const START_TIMER = 'START_TIMER';
-export const START_TIMER_REQUEST = 'START_TIMER_REQUEST';
-export const START_TIMER_SUCCESS = 'START_TIMER_SUCCESS';
-export const START_TIMER_FAILURE = 'START_TIMER_FAILURE';
+export const START_TIMER_AND_TODO_CREATE_REQUEST =
+  'START_TIMER_AND_TODO_CREATE_REQUEST';
+export const START_TIMER_AND_TODO_CREATE_SUCCESS =
+  'START_TIMER_AND_TODO_CREATE_SUCCESS';
+export const START_TIMER_AND_TODO_CREATE_FAILURE =
+  'START_TIMER_AND_TODO_CREATE_FAILURE';
 
 export const STOP_TIMER = 'STOP_TIMER';
 export const PAUSE_TIMER = 'PAUSE_TIMER';
@@ -14,10 +17,13 @@ const initialState = {
   totalTime: DEFAULT_TIME,
   elapsedTime: 0,
   isStarted: false,
+  isStarting: false,
   isRunning: false,
-  startError: '',
+  todoCreateError: '',
   todoContent: '',
   doneContent: '',
+  todoId: 0,
+  timelineId: 0,
 };
 
 const reducer = (state = initialState, action) => {
@@ -29,8 +35,14 @@ const reducer = (state = initialState, action) => {
         isRunning: true,
       };
     }
-    case START_TIMER_REQUEST: {
-      return applyStartTimerRequest(state, action);
+    case START_TIMER_AND_TODO_CREATE_REQUEST: {
+      return applyStartTimerAndTodoCreateRequest(state, action);
+    }
+    case START_TIMER_AND_TODO_CREATE_SUCCESS: {
+      return applyStartTimerAndTodoCreateSuccess(state, action);
+    }
+    case START_TIMER_AND_TODO_CREATE_FAILURE: {
+      return applyStartTimerAndTodoCreateFailure(state, action);
     }
     case STOP_TIMER: {
       return {
@@ -73,11 +85,34 @@ const reducer = (state = initialState, action) => {
   }
 };
 
-const applyStartTimerRequest = (state, action) => {
+const applyStartTimerAndTodoCreateRequest = (state, action) => {
   return {
     ...state,
     isStarted: false,
+    isStarting: true,
+    isRunning: false,
+  };
+};
+
+const applyStartTimerAndTodoCreateSuccess = (state, action) => {
+  // console.log('REDUCER: ', action.payload);
+  return {
+    ...state,
+    isStarted: true,
+    isStarting: false,
     isRunning: true,
+    todoId: action.payload.todoId,
+    timelineId: action.payload.timelineId,
+  };
+};
+
+const applyStartTimerAndTodoCreateFailure = (state, action) => {
+  return {
+    ...state,
+    isStarted: false,
+    isStarting: false,
+    isRunning: false,
+    todoCreateError: action.error,
   };
 };
 export default reducer;

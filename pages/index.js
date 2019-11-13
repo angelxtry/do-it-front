@@ -1,18 +1,21 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button, Card, Input, Form } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
+import moment from 'moment';
+
 import {
   START_TIMER,
   ADD_SECOND,
   STOP_TIMER,
   RESET_TIMER,
   SET_TIMER,
+  START_TIMER_AND_TODO_CREATE_REQUEST,
 } from '../reducers/timer';
 
 const Home = () => {
   const { TextArea } = Input;
   const [todoContent, setTodoContent] = useState('');
-  const { totalTime, elapsedTime, isRunning } = useSelector(
+  const { totalTime, elapsedTime, isStarting, isRunning } = useSelector(
     (state) => state.timer,
   );
   const [timer, setTimer] = useState('');
@@ -28,10 +31,23 @@ const Home = () => {
     };
   };
 
+  const verifyContent = (content) => {
+    const verified = content && content.trim();
+    return verified && verified.length > 0 ? verified : null;
+  };
+
   const onStart = useCallback(() => {
-    console.log('onStart - todoContent: ', todoContent);
+    const verified = verifyContent(todoContent);
+    if (!verified) {
+      return alert('Todo에 할 일을 적어주세요.');
+    }
     dispatch({
-      type: START_TIMER,
+      type: START_TIMER_AND_TODO_CREATE_REQUEST,
+      data: {
+        todoContent: verified,
+        duration: timeFormat(totalTime).total,
+        startedAt: moment().format('YYYY-MM-DD HH:mm:ss'),
+      },
     });
   }, [todoContent]);
 
@@ -108,7 +124,12 @@ const Home = () => {
           />
         </Card>
         {isRunning || (
-          <Button type="primary" onClick={onStart} style={{ width: '70%' }}>
+          <Button
+            type="primary"
+            onClick={onStart}
+            loading={isStarting}
+            style={{ width: '70%' }}
+          >
             Start
           </Button>
         )}
