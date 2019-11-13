@@ -2,39 +2,44 @@ import { all, fork, takeLatest, call, put, delay } from 'redux-saga/effects';
 import axios from 'axios';
 
 import {
-  START_TIMER_SUCCESS,
-  START_TIMER_FAILURE,
-  START_TIMER_REQUEST,
+  START_TIMER_AND_TODO_CREATE_SUCCESS,
+  START_TIMER_AND_TODO_CREATE_FAILURE,
+  START_TIMER_AND_TODO_CREATE_REQUEST,
 } from '../reducers/timer';
 
-function startTimerAPI(todoTimerData) {
-  return axios.get(`/todo`, todoTimerData, {
+function startTimerAndTodoCreateAPI(todoCreateData) {
+  // console.log('SAGA: ', todoCreateData);
+  return axios.post(`/todo`, todoCreateData, {
     withCredentials: true,
   });
 }
 
-function* startTimer(action) {
+function* startTimerAndTodoCreate(action) {
   try {
-    const result = yield call(startTimerAPI, action.payload);
+    const result = yield call(startTimerAndTodoCreateAPI, action.data);
+    // console.log('SAGA - result: ', result);
     yield put({
-      type: START_TIMER_SUCCESS,
-      data: result.data.data,
+      type: START_TIMER_AND_TODO_CREATE_SUCCESS,
+      payload: result.data.data,
     });
   } catch (e) {
     console.error(e);
     yield put({
-      type: START_TIMER_FAILURE,
+      type: START_TIMER_AND_TODO_CREATE_FAILURE,
       error: e,
     });
   }
 }
 
-function* watchStartTimer() {
-  yield takeLatest(START_TIMER_REQUEST, startTimer);
+function* watchstartTimerAndTodoCreate() {
+  yield takeLatest(
+    START_TIMER_AND_TODO_CREATE_REQUEST,
+    startTimerAndTodoCreate,
+  );
 }
 
 function* todoHistorySaga() {
-  yield all([fork(watchStartTimer)]);
+  yield all([fork(watchstartTimerAndTodoCreate)]);
 }
 
 export default todoHistorySaga;
