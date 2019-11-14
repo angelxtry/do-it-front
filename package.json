@@ -1,5 +1,5 @@
 {
-  "name": "dodoit",
+  "name": "do-it-front",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -8,7 +8,7 @@
     "dev": "next",
     "build": "next build",
     "prestart": "npm run build",
-    "start": "NODE_ENV=production next start -p 80"
+    "start": "NODE_ENV=production next start -p 8090"
   },
   "author": "",
   "license": "ISC",
