@@ -8,7 +8,7 @@
     "dev": "next",
     "build": "next build",
     "prestart": "npm run build",
-    "start": "next start"
+    "start": "NODE_ENV=production next start -p 80"
   },
   "author": "",
   "license": "ISC",
