@@ -5,12 +5,14 @@ import { Provider } from 'react-redux';
 import withRedux from 'next-redux-wrapper';
 import createSagaMiddleware from 'redux-saga';
 import withReduxSaga from 'next-redux-saga';
+import axios from 'axios';
 
 import AppLayout from '../components/AppLayout';
 import rootReducer from '../reducers';
 import rootSaga from '../sagas';
+import { LOAD_USER_REQUEST } from '../reducers/user';
 
-const MyApp = ({ Component, store }) => {
+const DoIt = ({ Component, store }) => {
   return (
     <Provider store={store}>
       <Head>
@@ -25,6 +27,26 @@ const MyApp = ({ Component, store }) => {
       </AppLayout>
     </Provider>
   );
+};
+
+DoIt.getInitialProps = async (context) => {
+  const { ctx, Component } = context;
+  let pageProps = {};
+  const state = ctx.store.getState();
+  const cookie = ctx.isServer ? ctx.req.headers.cookie : '';
+  axios.defaults.headers.Cookie = '';
+  if (ctx.isServer && cookie) {
+    axios.defaults.headers.Cookie = cookie;
+  }
+  if (!state.user.me) {
+    ctx.store.dispatch({
+      type: LOAD_USER_REQUEST,
+    });
+  }
+  if (Component.getInitialProps) {
+    pageProps = (await Component.getInitialProps(ctx)) || {};
+  }
+  return { pageProps };
 };
 
 const configureStore = (initialState, options) => {
@@ -45,5 +67,4 @@ const configureStore = (initialState, options) => {
   return store;
 };
 
-export default withRedux(configureStore)(withReduxSaga(MyApp));
-
+export default withRedux(configureStore)(withReduxSaga(DoIt));

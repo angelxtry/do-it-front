@@ -1,22 +1,13 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import Link from 'next/link';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { Menu, Input, Row, Col } from 'antd';
 
 import LoginForm from './LoginForm';
 import UserProfile from './UserProfile';
-import { LOAD_USER_REQUEST } from '../reducers/user';
 
 const AppLayout = ({ children }) => {
   const { me } = useSelector((state) => state.user);
-  const dispatch = useDispatch();
-  useEffect(() => {
-    if (!me) {
-      dispatch({
-        type: LOAD_USER_REQUEST,
-      });
-    }
-  }, []);
 
   return (
     <div>
