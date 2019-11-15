@@ -12,7 +12,7 @@ import rootReducer from '../reducers';
 import rootSaga from '../sagas';
 import { LOAD_USER_REQUEST } from '../reducers/user';
 
-const DoIt = ({ Component, store }) => {
+const DoIt = ({ Component, store, pageProps }) => {
   return (
     <Provider store={store}>
       <Head>
@@ -23,7 +23,7 @@ const DoIt = ({ Component, store }) => {
         />
       </Head>
       <AppLayout>
-        <Component />
+        <Component {...pageProps}/>
       </AppLayout>
     </Provider>
   );
