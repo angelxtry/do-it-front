@@ -10,6 +10,7 @@ import {
   RESET_TIMER,
   SET_TIMER,
   START_TIMER_AND_TODO_CREATE_REQUEST,
+  TODO_COMPLETE_REQUEST,
 } from '../reducers/timer';
 
 const messageComplete = `Todo를 모두 완료하셨나요?\n
@@ -27,6 +28,10 @@ const Home = () => {
     isStarting,
     isStarted,
     isRunning,
+    todoId,
+    timelineId,
+    isSavingTodo,
+    isSaveTodoSuccess,
   } = useSelector((state) => state.timer);
   const [timer, setTimer] = useState('');
   const dispatch = useDispatch();
@@ -81,13 +86,19 @@ const Home = () => {
 
   const onConfirmComplete = useCallback(() => {
     // todo 저장 로직
-    message.success('저장했습니다.');
+    // message.success('저장중입니다.');
+    dispatch({
+      type: TODO_COMPLETE_REQUEST,
+      data: {
+        doneContent,
+        todoId,
+        timelineId,
+        endedAt: moment().format('YYYY-MM-DD HH:mm:ss'),
+      },
+    });
     setTodoContent('');
     setDoneContent('');
-    dispatch({
-      type: RESET_TIMER,
-    });
-  }, []);
+  }, [doneContent, todoId, timelineId]);
 
   const onCancelComplete = useCallback(() => {
     message.success('취소했습니다.');
@@ -103,7 +114,7 @@ const Home = () => {
     (time) => () => {
       dispatch({
         type: SET_TIMER,
-        time,
+        time: time * 60,
       });
     },
     [],
@@ -128,18 +139,30 @@ const Home = () => {
     } else {
       clearInterval(timer);
     }
+    return () => clearInterval(timer);
   }, [isRunning]);
+
+  useEffect(() => {
+    if (!isSavingTodo && isSaveTodoSuccess) {
+      message.success(
+        '수고하셨습니다! (ﾉ◕ヮ◕)ﾉ*:･ﾟ✧ ✧ﾟ･: *ヽ(◕ヮ◕ヽ) 조금 쉬시고 다시 시작하세요~',
+      );
+    }
+  }, [isSavingTodo, isSaveTodoSuccess]);
 
   return (
     <div>
       <div style={{ padding: '10px' }}>
-        <Button type="dashed" onClick={onClickTimeSetting(25)}>
+        <Button key="s1" type="dashed" onClick={onClickTimeSetting(0.1)}>
+          6s
+        </Button>
+        <Button key="m25" type="dashed" onClick={onClickTimeSetting(25)}>
           25
         </Button>
-        <Button type="dashed" onClick={onClickTimeSetting(45)}>
+        <Button key="m45" type="dashed" onClick={onClickTimeSetting(45)}>
           45
         </Button>
-        <Button type="dashed" onClick={onClickTimeSetting(60)}>
+        <Button key="m60" type="dashed" onClick={onClickTimeSetting(60)}>
           60
         </Button>
       </div>
@@ -208,7 +231,11 @@ const Home = () => {
               okText="Yes"
               cancelText="No"
             >
-              <Button onClick={onComplete} style={{ width: '35%' }}>
+              <Button
+                onClick={onComplete}
+                loading={isSavingTodo}
+                style={{ width: '35%' }}
+              >
                 Complete!
               </Button>
             </Popconfirm>

@@ -5,6 +5,9 @@ import {
   START_TIMER_AND_TODO_CREATE_SUCCESS,
   START_TIMER_AND_TODO_CREATE_FAILURE,
   START_TIMER_AND_TODO_CREATE_REQUEST,
+  TODO_COMPLETE_SUCCESS,
+  TODO_COMPLETE_FAILURE,
+  TODO_COMPLETE_REQUEST,
 } from '../reducers/timer';
 
 function startTimerAndTodoCreateAPI(todoCreateData) {
@@ -38,8 +41,33 @@ function* watchstartTimerAndTodoCreate() {
   );
 }
 
-function* todoHistorySaga() {
-  yield all([fork(watchstartTimerAndTodoCreate)]);
+function todoCompleteAPI(todoCompleteData) {
+  return axios.patch(`/todo`, todoCompleteData, {
+    withCredentials: true,
+  });
 }
 
-export default todoHistorySaga;
+function* todoComplete(action) {
+  try {
+    const result = yield call(todoCompleteAPI, action.data);
+    yield put({
+      type: TODO_COMPLETE_SUCCESS,
+      payload: result.data.data,
+    });
+  } catch (e) {
+    console.error(e);
+    yield put({
+      type: TODO_COMPLETE_FAILURE,
+      error: e,
+    });
+  }
+}
+
+function* watchTodoComplete() {
+  yield takeLatest(TODO_COMPLETE_REQUEST, todoComplete);
+}
+function* todoTimerSaga() {
+  yield all([fork(watchstartTimerAndTodoCreate), fork(watchTodoComplete)]);
+}
+
+export default todoTimerSaga;

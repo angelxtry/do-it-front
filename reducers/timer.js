@@ -18,14 +18,17 @@ export const RESET_TIMER = 'RESET_TIMER';
 export const SET_TIMER = 'SET_TIMER';
 export const ADD_SECOND = 'ADD_SECOND';
 
-const DEFAULT_TIME = 25 * 60;
+const DEFAULT_TIME = 25 * 60; // 25 minutes
 const initialState = {
   totalTime: DEFAULT_TIME,
   elapsedTime: 0,
-  isStarted: false,
-  isStarting: false,
-  isRunning: false,
+  isStarted: false, // start -> complete
+  isStarting: false, // start -> pause
+  isRunning: false, // pause -> resume
+  isSavingTodo: false, // todo 저장 시도 중
+  isSaveTodoSuccess: false, // todo 저장 성공 여부
   todoCreateError: '',
+  todoCompleteError: '',
   todoContent: '',
   doneContent: '',
   todoId: 0,
@@ -49,6 +52,15 @@ const reducer = (state = initialState, action) => {
     }
     case START_TIMER_AND_TODO_CREATE_FAILURE: {
       return applyStartTimerAndTodoCreateFailure(state, action);
+    }
+    case TODO_COMPLETE_REQUEST: {
+      return applyTodoCompleteRequest(state, action);
+    }
+    case TODO_COMPLETE_SUCCESS: {
+      return applyTodoCompleteSuccess(state, action);
+    }
+    case TODO_COMPLETE_FAILURE: {
+      return applyTodoCompleteFailure(state, action);
     }
     case PAUSE_TIMER: {
       return {
@@ -77,7 +89,7 @@ const reducer = (state = initialState, action) => {
         ...state,
         isRunning: false,
         elapsedTime: 0,
-        totalTime: action.time * 60,
+        totalTime: action.time,
       };
     }
     case ADD_SECOND: {
@@ -129,4 +141,39 @@ const applyStartTimerAndTodoCreateFailure = (state, action) => {
     todoCreateError: action.error,
   };
 };
+
+const applyTodoCompleteRequest = (state, action) => {
+  return {
+    ...state,
+    isRunning: false,
+    isSavingTodo: true,
+    isSaveTodoSuccess: false,
+    todoCompleteError: '',
+  };
+};
+
+const applyTodoCompleteSuccess = (state, action) => {
+  // console.log('REDUCER: ', action.payload);
+  return {
+    ...state,
+    elapsedTime: 0,
+    isStarted: false,
+    isStarting: false,
+    isSavingTodo: false,
+    isSaveTodoSuccess: true,
+  };
+};
+
+const applyTodoCompleteFailure = (state, action) => {
+  return {
+    ...state,
+    elapsedTime: 0,
+    isStarted: false,
+    isStarting: false,
+    isSavingTodo: false,
+    isSaveTodoSuccess: false,
+    todoCompleteError: action.error,
+  };
+};
+
 export default reducer;

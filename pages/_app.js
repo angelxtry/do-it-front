@@ -31,7 +31,7 @@ const DoIt = ({ Component, store, pageProps }) => {
 
 DoIt.getInitialProps = async (context) => {
   const { ctx, Component } = context;
-  console.log('_app - getInitialProps - ctx: ', ctx);
+  // console.log('_app - getInitialProps - ctx: ', ctx);
   let pageProps = {};
   const state = ctx.store.getState();
   const cookie = ctx.isServer ? ctx.req.headers.cookie : '';
