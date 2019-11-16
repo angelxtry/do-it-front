@@ -11,6 +11,7 @@ import {
   SET_TIMER,
   START_TIMER_AND_TODO_CREATE_REQUEST,
   TODO_COMPLETE_REQUEST,
+  TODO_COMPLETE_CLEANUP,
 } from '../reducers/timer';
 
 const messageComplete = `Todo를 모두 완료하셨나요?\n
@@ -85,12 +86,11 @@ const Home = () => {
   }, []);
 
   const onConfirmComplete = useCallback(() => {
-    // todo 저장 로직
-    // message.success('저장중입니다.');
+    const verified = verifyContent(doneContent);
     dispatch({
       type: TODO_COMPLETE_REQUEST,
       data: {
-        doneContent,
+        doneContent: verified || 'OK',
         todoId,
         timelineId,
         endedAt: moment().format('YYYY-MM-DD HH:mm:ss'),
@@ -147,8 +147,11 @@ const Home = () => {
       message.success(
         '수고하셨습니다! (ﾉ◕ヮ◕)ﾉ*:･ﾟ✧ ✧ﾟ･: *ヽ(◕ヮ◕ヽ) 조금 쉬시고 다시 시작하세요~',
       );
+      dispatch({
+        type: TODO_COMPLETE_CLEANUP,
+      });
     }
-  }, [isSavingTodo, isSaveTodoSuccess]);
+  }, [isSavingTodo === false, isSaveTodoSuccess === true]);
 
   return (
     <div>

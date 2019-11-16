@@ -9,6 +9,7 @@ export const START_TIMER_AND_TODO_CREATE_FAILURE =
 export const TODO_COMPLETE_REQUEST = 'TODO_COMPLETE_REQUEST';
 export const TODO_COMPLETE_SUCCESS = 'TODO_COMPLETE_SUCCESS';
 export const TODO_COMPLETE_FAILURE = 'TODO_COMPLETE_FAILURE';
+export const TODO_COMPLETE_CLEANUP = 'TODO_COMPLETE_CLEANUP';
 
 export const STOP_TIMER = 'STOP_TIMER';
 export const PAUSE_TIMER = 'PAUSE_TIMER';
@@ -61,6 +62,9 @@ const reducer = (state = initialState, action) => {
     }
     case TODO_COMPLETE_FAILURE: {
       return applyTodoCompleteFailure(state, action);
+    }
+    case TODO_COMPLETE_CLEANUP: {
+      return applyTodoCompleteCleanup(state, action);
     }
     case PAUSE_TIMER: {
       return {
@@ -173,6 +177,14 @@ const applyTodoCompleteFailure = (state, action) => {
     isSavingTodo: false,
     isSaveTodoSuccess: false,
     todoCompleteError: action.error,
+  };
+};
+
+const applyTodoCompleteCleanup = (state, action) => {
+  return {
+    ...state,
+    isSavingTodo: false,
+    isSaveTodoSuccess: false,
   };
 };
 
