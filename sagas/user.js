@@ -48,6 +48,9 @@ function loginAPI(userData) {
 function* login(action) {
   try {
     const result = yield call(loginAPI, action.data);
+    axios.defaults.headers.common[
+      'Authorization'
+    ] = `Bearer ${result.data.data.token}`;
     yield put({
       type: LOG_IN_SUCCESS,
       payload: result.data.data,
