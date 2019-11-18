@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Button, Checkbox, Form, Input } from 'antd';
 
 import useInput from '../components/useInput';
+import { SIGN_UP_REQUEST } from '../reducers/user';
 
 const Signup = () => {
   const [passwordCheck, setPasswordCheck] = useState('');
@@ -13,22 +15,35 @@ const Signup = () => {
   const [nickname, onChangeNickname] = useInput('');
   const [password, onChangePassword] = useInput('');
 
-  const onSubmit = (e) => {
-    e.preventDefault();
-    if (password !== passwordCheck) {
-      return setPasswordError(true);
-    }
-    if (!term) {
-      return setTermError(true);
-    }
-    console.log({
-      id,
-      nickname,
-      password,
-      passwordCheck,
-      term,
-    });
-  };
+  const dispatch = useDispatch();
+
+  const onSubmit = useCallback(
+    (e) => {
+      e.preventDefault();
+      if (password !== passwordCheck) {
+        return setPasswordError(true);
+      }
+      if (!term) {
+        return setTermError(true);
+      }
+      console.log({
+        id,
+        nickname,
+        password,
+        passwordCheck,
+        term,
+      });
+      dispatch({
+        type: SIGN_UP_REQUEST,
+        data: {
+          email: id,
+          nickname,
+          password,
+        },
+      });
+    },
+    [id, nickname, password],
+  );
 
   const onChangePasswordCheck = (e) => {
     setPasswordError(e.target.value !== password);
