@@ -1,6 +1,8 @@
 import { all, fork, takeLatest, call, put, delay } from 'redux-saga/effects';
 import axios from 'axios';
 
+import { setCookie, removeCookie } from '../utils/cookieHelper';
+
 import {
   LOG_IN_SUCCESS,
   LOG_IN_FAILURE,
@@ -51,6 +53,10 @@ function* login(action) {
     axios.defaults.headers.common[
       'Authorization'
     ] = `Bearer ${result.data.data.token}`;
+    yield call(setCookie, {
+      key: 'token',
+      value: result.data.data.token,
+    });
     yield put({
       type: LOG_IN_SUCCESS,
       payload: result.data.data,
@@ -74,6 +80,7 @@ function logoutAPI() {
 
 function* logout() {
   try {
+    yield call(removeCookie, 'token');
     yield call(logoutAPI);
     yield put({
       type: LOG_OUT_SUCCESS,
@@ -97,6 +104,7 @@ function loadUserAPI() {
 
 function* loadUser() {
   try {
+    // axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     const result = yield call(loadUserAPI);
     yield put({
       type: LOAD_USER_SUCCESS,
