@@ -1,4 +1,8 @@
 // ACTION
+export const SIGN_UP_REQUEST = 'SIGN_UP_REQUEST';
+export const SIGN_UP_SUCCESS = 'SIGN_UP_SUCCESS';
+export const SIGN_UP_FAILURE = 'SIGN_UP_FAILURE';
+
 export const LOG_IN_REQUEST = 'LOG_IN_REQUEST';
 export const LOG_IN_SUCCESS = 'LOG_IN_SUCCESS';
 export const LOG_IN_FAILURE = 'LOG_IN_FAILURE';
@@ -15,6 +19,7 @@ export const LOAD_USER_FAILURE = 'LOAD_USER_FAILURE';
 const initialState = {
   isLoggingIn: false,
   loginError: '',
+  signupError: '',
   me: null,
 };
 
@@ -26,6 +31,13 @@ const initialState = {
 // REDUCER
 const reducer = (state = initialState, action) => {
   switch (action.type) {
+    case SIGN_UP_REQUEST:
+      return applySignupRequest(state, action);
+    case SIGN_UP_SUCCESS:
+      return applySignupSuccess(state, action);
+    case SIGN_UP_FAILURE:
+      return applySignupFailure(state, action);
+
     case LOG_IN_REQUEST:
       return applyLoginRequest(state, action);
     case LOG_IN_SUCCESS:
@@ -48,6 +60,26 @@ const reducer = (state = initialState, action) => {
       return state;
     }
   }
+};
+
+const applySignupRequest = (state, action) => {
+  return {
+    ...state,
+    signupError: '',
+  };
+};
+
+const applySignupSuccess = (state, action) => {
+  return {
+    ...state,
+  };
+};
+
+const applySignupFailure = (state, action) => {
+  return {
+    ...state,
+    signupError: action.error,
+  };
 };
 
 const applyLoginRequest = (state, action) => {
